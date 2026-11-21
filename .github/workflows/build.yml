@@ -7,6 +7,9 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -21,18 +24,45 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - name: Setup Gradle
+      - name: Setup Gradle 8.7
         uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.7
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Create temporary Firebase config
+      - name: Install Android SDK 34
         run: |
-          mkdir -p master/app
-          mkdir -p client/app
-          echo '{"project_info":{"project_number":"123456789","project_id":"demo-project","storage_bucket":"demo-project.appspot.com"},"client":[{"client_info":{"mobilesdk_app_id":"1:123456789:android:abcdef","android_client_info":{"package_name":"com.ridwan.master"}},"api_key":[{"current_key":"demo-key"}]}],"configuration_version":"1"}' > master/app/google-services.json
-          echo '{"project_info":{"project_number":"123456789","project_id":"demo-project","storage_bucket":"demo-project.appspot.com"},"client":[{"client_info":{"mobilesdk_app_id":"1:123456789:android:abcdef","android_client_info":{"package_name":"com.ridwan.client"}},"api_key":[{"current_key":"demo-key"}]}],"configuration_version":"1"}' > client/app/google-services.json
+          sdkmanager "platforms;android-34" "build-tools;34.0.0"
+
+      - name: Create temporary Firebase configs
+        run: |
+          for app in master client; do
+            mkdir -p "$app/app"
+            package="com.ridwan.${app}"
+            cat > "$app/app/google-services.json" <<EOF
+          {
+            "project_info": {
+              "project_number": "123456789",
+              "project_id": "demo-project",
+              "storage_bucket": "demo-project.appspot.com"
+            },
+            "client": [{
+              "client_info": {
+                "mobilesdk_app_id": "1:123456789:android:abcdef",
+                "android_client_info": {
+                  "package_name": "$package"
+                }
+              },
+              "api_key": [{
+                "current_key": "demo-key"
+              }]
+            }],
+            "configuration_version": "1"
+          }
+          EOF
+          done
 
       - name: Build Master APK
         run: gradle -p master assembleDebug
@@ -51,3 +81,4 @@ jobs:
         with:
           name: Ridwan-Client-APK
           path: client/app/build/outputs/apk/debug/app-debug.apk
+          
