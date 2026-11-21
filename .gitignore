@@ -1,0 +1,11 @@
+
+.gradle/
+.idea/
+local.properties
+**/build/
+**/.gradle/
+*.iml
+.DS_Store
+
+# Firebase configuration
+**/google-services.json
