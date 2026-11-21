@@ -1,4 +1,3 @@
-
 name: Build Ridwan Remote Control
 
 on:
@@ -18,13 +17,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup JDK 17
+      - name: Setup JDK
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
 
-      - name: Setup Gradle 8.7
+      - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: 8.7
@@ -32,15 +31,14 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v4
 
-      - name: Install Android SDK 34
-        run: |
-          sdkmanager "platforms;android-34" "build-tools;34.0.0"
+      - name: Install SDK
+        run: sdkmanager "platforms;android-34" "build-tools;34.0.0"
 
-      - name: Create temporary Firebase configs
+      - name: Create temporary Firebase config
         run: |
           for app in master client; do
-            mkdir -p "$app/app"
             package="com.ridwan.${app}"
+            mkdir -p "$app/app"
             cat > "$app/app/google-services.json" <<EOF
           {
             "project_info": {
@@ -64,13 +62,11 @@ jobs:
           EOF
           done
 
-      - name: Build Master APK
-        working-directory: master
-        run: gradle assembleDebug
+      - name: Build Master
+        run: gradle -p master -c master/settings.gradle.kts assembleDebug --stacktrace
 
-      - name: Build Client APK
-        working-directory: client
-        run: gradle assembleDebug
+      - name: Build Client
+        run: gradle -p client -c client/settings.gradle.kts assembleDebug --stacktrace
 
       - name: Upload Master APK
         uses: actions/upload-artifact@v4
@@ -83,4 +79,3 @@ jobs:
         with:
           name: Ridwan-Client-APK
           path: client/app/build/outputs/apk/debug/app-debug.apk
-          
