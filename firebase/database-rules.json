@@ -1,0 +1,16 @@
+
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "devices": {
+      "$deviceId": {
+        ".read": "auth != null && auth.uid === $deviceId",
+        ".write": "auth != null && auth.uid === $deviceId",
+        "status": {
+          ".validate": "newData.hasChildren(['name', 'online'])"
+        }
+      }
+    }
+  }
+}
