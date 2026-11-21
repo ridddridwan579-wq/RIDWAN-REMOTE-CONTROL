@@ -24,7 +24,7 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - name: Setup Gradle
+      - name: Setup Gradle 8.7
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: 8.7
@@ -64,12 +64,10 @@ jobs:
           done
 
       - name: Build Master APK
-        working-directory: master
-        run: gradle assembleDebug --stacktrace
+        run: gradle -p master -c settings.gradle.kts assembleDebug --stacktrace
 
       - name: Build Client APK
-        working-directory: client
-        run: gradle assembleDebug --stacktrace
+        run: gradle -p client -c settings.gradle.kts assembleDebug --stacktrace
 
       - name: Upload Master APK
         uses: actions/upload-artifact@v4
