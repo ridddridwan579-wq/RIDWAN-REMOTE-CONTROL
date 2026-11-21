@@ -65,10 +65,12 @@ jobs:
           done
 
       - name: Build Master APK
-        run: gradle -p master assembleDebug
+        working-directory: master
+        run: gradle assembleDebug
 
       - name: Build Client APK
-        run: gradle -p client assembleDebug
+        working-directory: client
+        run: gradle assembleDebug
 
       - name: Upload Master APK
         uses: actions/upload-artifact@v4
